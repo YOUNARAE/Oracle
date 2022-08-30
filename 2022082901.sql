@@ -204,44 +204,50 @@ INNER JOIN HR.DEPARTMENTS B ON(A.DEPARTMENT_ID=B.DEPARTMENT_ID);
     
     
          (ANSI조인문)
-         SELECT A.CART_MEMBER AS 회원번호,
-                B.MEM_NAME AS 회원명,
-                C.PROD_NAME AS 상품명,
-                SUM(A.CART_QTY) AS 구매수량합계,
-                 SUM(A.CART_QTY*C.PROD_PRICE) AS 구매금액합계
-            FROM CART A 
-      INNER JOIN MEMBER B ON(A.CART_MEMBER=B.MEM_ID)
- --       INNER JOIN PROD C ON(A.CART_PROD=C.PROD_ID AND A.CART_NO LIKE '202004%') --일반조건을 위에 붙일지 아래에 붙일지를 잘 판단해야한다.
-      INNER JOIN PROD C ON(A.CART_PROD=C.PROD_ID)
-           WHERE A.CART_NO LIKE '202004%' --내부조인에서는 일반조건을 쓰든 웨어절을 쓰든 문제가 발생되지 않지만 외부조인할 때에는 문제가 발생된다
-        GROUP BY A.CART_MEMBER, B.MEM_NAME, C.PROD_NAME
-        ORDER BY 1;
+      SELECT A.CART_MEMBER AS 회원번호,
+             B.MEM_NAME AS 회원명,
+             C.PROD_NAME AS 상품명,
+             SUM(A.CART_QTY) AS 구매수량합계,
+             SUM(A.CART_QTY*C.PROD_PRICE) AS 구매금액합계
+        FROM CART A 
+  INNER JOIN MEMBER B ON(A.CART_MEMBER=B.MEM_ID)
+--       INNER JOIN PROD C ON(A.CART_PROD=C.PROD_ID AND A.CART_NO LIKE '202004%') --일반조건을 위에 붙일지 아래에 붙일지를 잘 판단해야한다.
+  INNER JOIN PROD C ON(A.CART_PROD=C.PROD_ID)
+       WHERE A.CART_NO LIKE '202004%' --내부조인에서는 일반조건을 쓰든 웨어절을 쓰든 문제가 발생되지 않지만 외부조인할 때에는 문제가 발생된다
+    GROUP BY A.CART_MEMBER, B.MEM_NAME, C.PROD_NAME
+    ORDER BY 1;
         
         
 사용예) 2020년 5월 거래처별 매출집계를 조회하시오
       Alias는 거래처코드, 거래처명, 매출금액합계
 
+--(I.E 표현법) 
+--식별자관계 : 부모의 기본키가 자식의 기본키가 되는 경우, 부모가 없으면 자식도 필요없다, 직선으로 표시된다.
+--비식별관계 : 부모의 기본키가 자식의 일반컬럼이 되어진다, 점선으로 표시
+
+--바커식표현방법
+
+
       (일반조인문)    
-      SELECT  A.BUYER_ID AS 거래처코드, 
+       SELECT A.BUYER_ID AS 거래처코드, 
               A.BUYER_NAME AS 거래처명, 
               SUM(B.PROD_PRICE*C.CART_QTY) AS 매출금액합계
-        FROM  BUYER A, PROD B, CART C
-       WHERE  A.BUYER_ID=B.PROD_BUYER
-         AND  B.PROD_ID=C.CART_PROD
-          AND C.CART_NO LIKE '202005%'
-    GROUP BY  A.BUYER_ID, A.BUYER_NAME
+         FROM BUYER A, PROD B, CART C
+        WHERE C.CART_NO LIKE '202005%' --일반조건
+          AND B.PROD_ID=C.CART_PROD --조인조건
+          AND A.BUYER_ID=B.PROD_BUYER --조인조건
+     GROUP BY A.BUYER_ID, A.BUYER_NAME
      ORDER BY 1;
 
        (ANSI조인문)
-       SELECT  A.BUYER_ID AS 거래처코드, 
+        SELECT A.BUYER_ID AS 거래처코드, 
                A.BUYER_NAME AS 거래처명, 
                SUM(B.PROD_PRICE*C.CART_QTY) AS 매출금액합계
-         FROM  BUYER A
-   INNER JOIN PROD B ON(A.BUYER_ID=B.PROD_BUYER)
-   INNER JOIN CART C ON(B.PROD_ID=C.CART_PROD)
-          AND C.CART_NO LIKE '202005%'
-    GROUP BY  A.BUYER_ID, A.BUYER_NAME
-     ORDER BY 1;
+          FROM BUYER A
+    INNER JOIN PROD B ON(A.BUYER_ID=B.PROD_BUYER)
+    INNER JOIN CART C ON(B.PROD_ID=C.CART_PROD AND C.CART_NO LIKE '202005%')
+      GROUP BY  A.BUYER_ID, A.BUYER_NAME
+      ORDER BY 1;
     
     
 사용예) HR계정에서 미국이외의 국가에 위치한 부서에 근무하는 직원정보를 조회하시오
@@ -250,12 +256,13 @@ INNER JOIN HR.DEPARTMENTS B ON(A.DEPARTMENT_ID=B.DEPARTMENT_ID);
       (일반조인문) 
        SELECT A.DEPARTMENT_ID AS 부서번호, 
               A.DEPARTMENT_NAME AS 부서명, 
-              B.COUNTRY_ID||' '||B.CITY||' '||B.STREET_ADDRESS AS 주소, 
+              B.STREET_ADDRESS||', '||B.CITY||', '||STATE_PROVINCE AS 주소, 
               C.COUNTRY_NAME AS 국가명
          FROM HR.DEPARTMENTS A, HR.LOCATIONS B, HR.COUNTRIES C
         WHERE A.LOCATION_ID=B.LOCATION_ID
           AND B.COUNTRY_ID=C.COUNTRY_ID
-          AND B.COUNTRY_ID != 'US';
+          AND B.COUNTRY_ID != 'US'
+     ORDER BY 1;
          
     (ANSI조인문)      
      SELECT A.DEPARTMENT_ID AS 부서번호, 
