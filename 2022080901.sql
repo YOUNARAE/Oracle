@@ -14,10 +14,10 @@
       --ORDER BY MEM_MILEAGE DESC;
       ORDER BY 4 DESC;
       
-,(콤마)가 없으면 끝나는 것을 기대해서 FROM절을 못 찾았다하는 오류메세지가 뜬다.
+--,(콤마)가 없으면 끝나는 것을 기대해서 FROM절을 못 찾았다하는 오류메세지가 뜬다.
 
 사용예) 사원테이블(HR.EMPLOYEES) 부서번호가 50번인 사원들을 조회하시오.
-       Alias는 사원번호,사원명,부서번호,급여이다.--별칭은 셀렉터절에서 나와야한다--
+       Alias는 사원번호,사원명,부서번호,급여이다.--별칭은 셀렉트절에서 나와야한다--
        
        SELECT EMPLOYEE_ID AS 사원번호,
               EMP_NAME AS 사원명,
@@ -59,6 +59,7 @@
            NVL(ROUND(COMMISSION_PCT*SALARY*0.3),0) AS 보너스,
            SALARY + NVL(ROUND(COMMISSION_PCT*SALARY*0.3),0) AS 지급액
       FROM HR.EMPLOYEES
+    
       
 3. 논리연산자
   - 두 개 이상의 관계식을 연결(AND, OR)하거나 반전(NOT)결과 반환
@@ -96,7 +97,7 @@
              BUY_QTY AS 매입수량, 
              BUY_QTY * BUY_COST AS 매입금액
         FROM BUYPROD
-       WHERE BUY_DATE >= TO_DATE('20200101') AND BUY_DATE<=TO_DATE('20200131')--문자열은 항상 전환대상이다 
+       WHERE BUY_DATE >= TO_DATE('20200101') AND BUY_DATE<=TO_DATE('20200131')
          AND BUY_QTY >= 10
     ORDER BY 1;
         
@@ -107,14 +108,30 @@
     SELECT MEM_ID AS 회원번호,
            MEM_NAME AS 회원명,
            MEM_REGNO1||'-'||MEM_REGNO2 AS 주민번호,
-           TRUNC(EXTRACT(YEAR FROM SYSDATE)-EXTRACT(YEAR FROM MEM_BIR),-1) AS 연령대
-           MEM_MILEAGE AS 마일리지,
+           TRUNC(EXTRACT(YEAR FROM SYSDATE)-EXTRACT(YEAR FROM MEM_BIR),-1) AS 연령대,
+           MEM_MILEAGE AS 마일리지
       FROM MEMBER
      WHERE TRUNC(EXTRACT(YEAR FROM SYSDATE)-EXTRACT(YEAR FROM MEM_BIR),-1)=20
      -- 2022년 현재 시간을 추출하고 - 생년월일에서 년도만 추출한다
      -- 나이 구해서 1의 자리를 0으로 만들어주는 것.
-     OR (SUBSTR(MEM_REGNO2,1,1)='2' OR SUBSTR(MEM_REGNO2,1,1)='4');
+     OR (SUBSTR(MEM_REGNO2,1,1)='2' AND SUBSTR(MEM_REGNO2,1,1)='4');
      -- OR SUBSTR(MEM_REGNO2,1,1) IN('2','4'))
+     
+     
+     (연습용)
+     회원테이블에서 연령대가 30대 남성회원이고 마일리지가 1000점 이상인 회원을 조회하시오
+      Alias는 회원번호,회원명,주민번호,마일리지,
+    SELECT MEM_ID AS 회원번호,
+           MEM_NAME AS 회원명,
+           MEM_REGNO1||'-'||MEM_REGNO2 AS 주민번호,
+           TRUNC(EXTRACT(YEAR FROM SYSDATE)-EXTRACT(YEAR FROM MEM_BIR),-1) AS 연령대,
+           MEM_MILEAGE AS 마일리지
+      FROM MEMBER
+     WHERE TRUNC(EXTRACT(YEAR FROM SYSDATE)-EXTRACT(YEAR FROM MEM_BIR),-1)=30
+       AND SUBSTR(MEM_REGNO2,1,1)='1' OR SUBSTR(MEM_REGNO2,1,1)='3'
+       AND MEM_MILEAGE >=1000;
+     
+     
        
         
 사용예)회원테이블에서 연령대가 20대이거나 여성 회원이면서 마일리지가 2000이상인 회원을 조회하시오
