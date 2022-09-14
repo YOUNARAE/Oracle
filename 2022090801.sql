@@ -102,13 +102,7 @@
           RETURN V_SUM;
         END;
     
-      (실행)
-        SELECT PROD_ID AS 상품코드,
-               PROD_NAME AS 상품명,
-               FN_BUYQTY_PRICE('202002', PROD_ID) AS 매입수량구입
-          FROM PROD;
-    
-        
+ ---------------------------------------------------------------------------------------       
         
         (수량+_매입금액)
         CREATE OR REPLACE FUNCTION FN_BUYQTY_PRICE(
@@ -125,7 +119,14 @@
              AND BUY_PROD=P_PID;
           RETURN V_CHAR;
         END;
-        
+      
+      
+        (실행)
+        SELECT PROD_ID AS 상품코드,
+               PROD_NAME AS 상품명,
+               FN_BUYQTY_PRICE('202002', PROD_ID) AS 매입수량구입
+          FROM PROD;
+      
         
         
         

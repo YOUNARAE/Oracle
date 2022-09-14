@@ -118,13 +118,14 @@ EXECUTE PROC_EMP01(60);
      BEGIN
         SELECT TA.CID, TA.CSUM INTO P_MID, P_SUM
           FROM (SELECT A.CART_MEMBER AS CID,
+                       A.CART_NO AS CN,
                        SUM(A.CART_QTY*B.PROD_PRICE) AS CSUM
                   FROM CART A, PROD B
                  WHERE A.CART_PROD=B.PROD_ID
-                   AND 
+                   AND SUBSTR(A.CART_NO,1,6) BETWEEN '202001' AND '202006' 
                  GROUP BY A.CART_MEMBER
                  ORDER BY 2 DESC) TA
-         WHERE 
+         WHERE MEM_JOB = 'ÀÚ¿µ¾÷'
      END;
          
       
